@@ -1,9 +1,9 @@
 requirejs.config({
 	paths: {
-		kineticjs: "lib/kinetic.js"
+		kinetic: "lib/kinetic"
 	},
 	shim: {
-		kineticjs: {
+		kinetic: {
 			exports: "Kinetic"
 		}
 	}
