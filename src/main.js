@@ -1,3 +1,14 @@
+requirejs.config({
+	paths: {
+		kineticjs: "lib/kinetic.js"
+	},
+	shim: {
+		kineticjs: {
+			exports: "Kinetic"
+		}
+	}
+});
+
 require([], function() {
 	var update = function(delta) {
 			console.log(delta);
