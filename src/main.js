@@ -1,6 +1,6 @@
 requirejs.config({
 	paths: {
-		kinetic: "lib/kinetic"
+		kinetic: "libs/kinetic"
 	},
 	shim: {
 		kinetic: {
@@ -9,9 +9,14 @@ requirejs.config({
 	}
 });
 
-require([], function() {
+require(["kinetic"], function(Kinetic) {
+	var stage = new Kinetic.Stage({
+		container: "game-container",
+		width: 600,
+		height: 300
+	});
+
 	var update = function(delta) {
-			console.log(delta);
 		},
 		draw = function(delta) {
 
