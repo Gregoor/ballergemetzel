@@ -1,0 +1,3 @@
+define(["kinectic"], function(Kinetic){
+	
+});
