@@ -61,6 +61,17 @@ define(["kinetic"], function(Kinetic) { return function Player(x,y) {
 					this.y += yOffset;
 					break;
 			}
+
+			this.getStageAttr = function(attr) { return this.view.getLayer().getStage().getAttr(attr); }
+
+			if(this.x <= 0)
+				this.x += this.getStageAttr('width');
+			else if(this.x >= this.getStageAttr('width'))
+				this.x -= this.getStageAttr('width');
+			if(this.y <= 0)
+				this.y += this.getStageAttr('height');
+			else if(this.y >= this.getStageAttr('height'))
+				this.y -= this.getStageAttr('height');
 			this.view.setX(this.x);
 			this.view.setY(this.y);
 			//alert("x is now "+this.x);
