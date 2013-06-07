@@ -9,46 +9,51 @@ requirejs.config({
 	}
 });
 
-require(["kinetic"], function(Kinetic) {
-	var stage = new Kinetic.Stage({
-		container: "game-container",
-		width: 600,
-		height: 300
-	});
+require(["kinetic", "models/level", "views/level_renderer"],
+	function(Kinetic, Level, LevelRenderer) {
+		var stage, level, levelRenderer, act, render, mainloop;
+		stage = new Kinetic.Stage({
+			container: "game-container",
+			width: 600,
+			height: 300
+		});
+		level = new Level();
+		levelRenderer = new LevelRenderer(level);
 
-	var update = function(delta) {
-		},
-		draw = function(delta) {
-
-		},
+		act = function(delta) {
+			level.act(delta);
+		};
+		render = function(delta) {
+			levelRenderer.render(delta);
+		};
 		mainloop = function(delta) {
-			update(delta);
-			draw(delta);
+			act(delta);
+			render(delta);
 		};
 
-	var animFrame = window.requestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.oRequestAnimationFrame ||
-		window.msRequestAnimationFrame ||
-		null;
+		var animFrame = window.requestAnimationFrame ||
+			window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame ||
+			window.oRequestAnimationFrame ||
+			window.msRequestAnimationFrame ||
+			null;
 
-	if (animFrame !== null) {
-		var canvas, prevTime = 0;
+		if (animFrame !== null) {
+			var canvas, prevTime = 0;
 
-		var recursiveAnim = function(time) {
-			var delta = time - prevTime;
-			prevTime = time;
+			var recursiveAnim = function(time) {
+				var delta = time - prevTime;
+				prevTime = time;
 
-			mainloop(delta);
+				mainloop(delta);
+				animFrame(recursiveAnim, canvas);
+			};
+
 			animFrame(recursiveAnim, canvas);
-		};
-
-		animFrame(recursiveAnim, canvas);
-	} else {
-		var ONE_FRAME_TIME = 1000.0 / 60.0;
-		setInterval(function() {
-			mainLoop(ONE_FRAME_TIME);
-		}, ONE_FRAME_TIME);
-	}
-});
+		} else {
+			var ONE_FRAME_TIME = 1000.0 / 60.0;
+			setInterval(function() {
+				mainLoop(ONE_FRAME_TIME);
+			}, ONE_FRAME_TIME);
+		}
+	});
