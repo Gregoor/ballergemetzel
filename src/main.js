@@ -9,14 +9,21 @@ requirejs.config({
 	}
 });
 
-require(["kinetic", "models/level"], function(Kinetic, Level) {
-	var stage, level, act, render, mainloop;
+require(["kinetic", "models/level", "models/player", "controllers/player_controller"], function(Kinetic, Level, Player, PlayerController) {
+	var stage, level, act, render, mainloop, player, playerController;
 	stage = new Kinetic.Stage({
 		container: "game-container",
 		width: 600,
 		height: 300
 	});
 	level = new Level(stage);
+	player = new Player(13,37);
+	playerController = new PlayerController(player);
+	document.onkeydown = playerController.keyEvent;
+
+	playerLayer = new Kinetic.Layer();
+	player.renderTo(playerLayer);
+	stage.add(playerLayer);
 
 	act = function(delta) {
 		level.act(delta);
