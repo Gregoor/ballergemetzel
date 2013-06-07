@@ -1,7 +1,9 @@
 define(["kinetic"], function(Kinetic) {
-	return function Level(stage) {
+	return function Level(stage, player) {
 		this.layer = new Kinetic.Layer();
 		this.boxes = [];
+		this.width = 5000;
+		this.height = 3000;
 
 		var range = function(min, max) {
 			if (!max) {
@@ -30,14 +32,12 @@ define(["kinetic"], function(Kinetic) {
 
 			return collision;
 		};
-
-
 		// build level in a highly sophisticated manner with major personalized emotional response analyzing big data donkeypiss
-		for (var i = 0; i < range(10, 20); i++) {
+		for (var i = 0; i < this.width * this.height * .00002; i++) {
 			var x, y, width, height;
 			do {
-				x = range(stage.getWidth());
-				y = range(stage.getHeight());
+				x = range(this.width);
+				y = range(this.height);
 				width = range(50, 200);
 				height = range(20, 100);
 			} while (!iterCollide(x, y, width, height));
@@ -46,23 +46,24 @@ define(["kinetic"], function(Kinetic) {
 		}
 
 		// initdraw, because later we will only move that whole fucking layer because we fucking can
+		var rect;
 		for (var i = 0; i < this.boxes.length; i++) {
 			var box = this.boxes[i];
-			this.layer.add(new Kinetic.Rect({
+			rect = new Kinetic.Rect({
 				x: box.x,
 				y: box.y,
 				width: box.w,
 				height: box.h,
 				fill: box.c
-			}));
+			});
+			this.layer.add(rect);
 		}
 		stage.add(this.layer);
 
 		this.act = function(delta) {
-
 		};
-		this.render = function(delta) {
 
+		this.render = function(delta) {
 		};
 	}
 });

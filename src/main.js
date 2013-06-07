@@ -13,12 +13,12 @@ require(["kinetic", "models/level", "models/player", "controllers/player_control
 	var stage, level, act, render, mainloop, player, playerController;
 	stage = new Kinetic.Stage({
 		container: "game-container",
-		width: window.innerWidth - 50,
-		height: window.innerHeight - 50
+		width: window.innerWidth - 30,
+		height: window.innerHeight - 30
 	});
-	level = new Level(stage);
 	player = new Player(13,37);
 	playerController = new PlayerController(player);
+	level = new Level(stage, player);
 	document.onkeydown = playerController.keyEvent;
 
 	playerLayer = new Kinetic.Layer();
@@ -30,6 +30,7 @@ require(["kinetic", "models/level", "models/player", "controllers/player_control
 	};
 	render = function(delta) {
 		level.render(delta);
+		stage.draw();
 	};
 	mainloop = function(delta) {
 		act(delta);
