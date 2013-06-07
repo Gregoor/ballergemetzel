@@ -10,7 +10,7 @@ requirejs.config({
 });
 
 require(["kinetic", "models/level", "models/player", "controllers/player_controller"], function(Kinetic, Level, Player, PlayerController) {
-	var stage, level, act, render, mainloop, player, playerController;
+	var stage, level, act, render, mainloop, player, playerController, playerLayer;
 	stage = new Kinetic.Stage({
 		container: "game-container",
 		width: window.innerWidth - 50,
