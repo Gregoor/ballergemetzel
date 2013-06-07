@@ -61,6 +61,7 @@ define(["kinetic"], function(Kinetic) {
 		stage.add(this.layer);
 
 		this.act = function(delta) {
+			player.act();
 		};
 
 		this.render = function(delta) {

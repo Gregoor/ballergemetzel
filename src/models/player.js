@@ -32,6 +32,9 @@ define(["kinetic"], function(Kinetic) {
 					height: 119
 				}
 			]
+		}
+		this.actions = {
+			left: false, right: false, up: false, down: false
 		};
 
 		this.view = new Kinetic.Sprite({
@@ -43,6 +46,28 @@ define(["kinetic"], function(Kinetic) {
 			frameRate: 15,
 			index: 0
 		});
+
+		this.act = function() {
+			for (var action in this.actions) {
+				if (!this.actions[action]) continue;
+				this.actions[action] = false;
+
+				switch (action) {
+					case "left":
+						this.move("l");
+						break;
+					case "right":
+						this.move("r");
+						break;
+					case "up":
+						this.move("u");
+						break;
+					case "down":
+						this.move("d");
+						break;
+				}
+			}
+		}
 
 		this.renderTo = function(layer) {
 			layer.add(this.view);

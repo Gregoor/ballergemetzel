@@ -1,27 +1,32 @@
-define(function() { return function PlayerController(player) {
+define(function() {
+	return function PlayerController(player) {
 		this.player = player;
-		var that = this;
 
-		this.keyEvent = function(key) {
+		var that = this;
+		this.keyDown = function(key) {
+			that.keyEvent(key, false);
+		}
+		this.keyUp = function(key) {
+			that.keyEvent(key, true);
+		}
+		this.keyEvent = function(key, upOrDown) {
 			key = key || window.event;
-			var keyCode = key.keyCode;
-			switch(keyCode) {
+			var keyCode = key.keyCode, action;
+			switch (keyCode) {
 				case 37: // left
-					that.player.move("l");
+					action = "left";
 					break;
 				case 39: // right
-					that.player.move("r");
+					action = "right";
 					break;
 				case 38: // up
-					that.player.move("u");
+					action = "up";
 					break;
 				case 40: // down
-					that.player.move("d");
+					action = "down";
 					break;
-				default:
-					//console.log(that.player);
-					//alert("caught unexpected keycode "+keyCode)
 			}
+			if (action) this.player.actions[action] = upOrDown == true ? false : true;
 		}
 
 	}

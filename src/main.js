@@ -19,7 +19,8 @@ require(["kinetic", "models/level", "models/player", "controllers/player_control
 	player = new Player(13,37);
 	playerController = new PlayerController(player);
 	level = new Level(stage, player);
-	document.onkeydown = playerController.keyEvent;
+	document.onkeydown = playerController.keyDown;
+	document.onkeyup = playerController.keyUp;
 
 	playerLayer = new Kinetic.Layer();
 	player.renderTo(playerLayer);
