@@ -13,8 +13,8 @@ require(["kinetic", "models/level", "models/player", "controllers/player_control
 	var stage, level, act, render, mainloop, player, playerController;
 	stage = new Kinetic.Stage({
 		container: "game-container",
-		width: 600,
-		height: 300
+		width: window.innerWidth - 50,
+		height: window.innerHeight - 50
 	});
 	level = new Level(stage);
 	player = new Player(13,37);
