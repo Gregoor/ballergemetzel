@@ -13,6 +13,12 @@ define(function() { return function PlayerController(player) {
 				case 39: // right
 					that.player.move('r');
 					break;
+				case 38: // up
+					that.player.move('u');
+					break;
+				case 40: // down
+					that.player.move('d');
+					break;
 				default:
 					//console.log(that.player);
 					//alert('caught unexpected keycode '+keyCode)

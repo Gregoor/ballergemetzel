@@ -45,15 +45,24 @@ define(["kinetic"], function(Kinetic) { return function Player(x,y) {
 		}
 
 		this.move = function(direction) {
+			var xOffset = 20;
+			var yOffset = 15;
 			switch(direction) {
 				case 'l':
-					this.x -= 5;
+					this.x -= xOffset;
 					break;
 				case 'r':
-					this.x += 5;
+					this.x += xOffset;
+					break;
+				case 'u':
+					this.y -= yOffset;
+					break;
+				case 'd':
+					this.y += yOffset;
 					break;
 			}
 			this.view.setX(this.x);
+			this.view.setY(this.y);
 			//alert("x is now "+this.x);
 		}
 	}
