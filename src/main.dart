@@ -1,0 +1,4 @@
+library main;
+
+main() {
+}
