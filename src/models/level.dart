@@ -1,63 +1,50 @@
 library level;
 
+import "vector.dart";
+import "grid.dart";
 import "dart:math";
 
 class Level {
-	var player, stage;
+	int width = 5000, height = 5000;
 
-	int width = 5000, height = 3000;
+	static const GRAVITY_PREC = .01;
 
-	List boxes = [];
+	List planets = [];
 
-	Level(this.player, this.stage) {
-		int range(int min, [int max]) {
-			if (!max) {
-				max = min;
-				min = 0;
-			}
-			return new Random.nextInt(max - min) + min;
-		}
+	Grid gravity;
 
-		boolean iterCollide(int bX, int bY, int bW, int bH) {
-			boolean pointCollision(int pointX, int pointY, int rectX, int rectY, int revtWidth, int rectHeight) {
-				int bTop = rectY, bLeft = rectX, bRight = rectX + rectWidth, bBottom = rectY + rectHeight;
-				if (pointX > bLeft && pointX < bRight && pointY > bTop && pointY < bBottom) return true;
-				return false;
-			}
-
-			return lvl.boxes.every((box) {
-				if (pointCollision(bX, bY, box.x, box.y, box.w, box.h) || pointCollision(bX + bW, bY, box.x, box.y, box.w, box.h) || pointCollision(bX, bY + bH, box.x, box.y, box.w, box.h) || pointCollision(bX + bW, bY + bH, box.x, box.y, box.w, box.h)) {
-					return false;
-				}
-				return true;
-			});
-		}
-
-		for (int i = 0; i < width * height * .00002; i++) {
-			var x, y, width, height;
-			do {
-				x = range(width);
-				y = range(height);
-				width = range(50, 200);
-				height = range(20, 100);
-			} while (!iterCollide(x, y, width, height));
-
-			boxes.add({"x": x, "y": y, "w": width, "h": height, "c": "#" + Math.random().toString(16).substring(4)});
-		}
-
-		for (var i = 0; i < this.boxes.length; i++) {
-			var box = this.boxes[i];
-		}
-		stage.add(this.layer);
+	Level() {
+		planets.add(new Planet(3000, 1000, 300));
+		gravity = new Grid(width * GRAVITY_PREC, height * GRAVITY_PREC);
+		buildGravityMap();
 	}
 
 	act(delta) {
-		player.act();
-	}
-
-	render(delta) {
 
 	}
 
+	buildGravityMap() {
+		print("building gravity map");
+		Planet p = planets[0];
+		for (int x = 0; x < gravity.w; x++) {
+			for (int y = 0; y < gravity.h; y++) {
+				gravity[x][y] = (p.pos - new Vector(x  / GRAVITY_PREC, y / GRAVITY_PREC)).normalize() * .1;
+			}
+		}
+		print("gravitized");
+	}
+
+	Vector gravityAt(Vector v) {
+		return gravity.data[((v.x * GRAVITY_PREC) + gravity.w * (v.y * GRAVITY_PREC)).toInt()];
+	}
+
+}
+
+class Planet {
+	Vector pos;
+
+	int r;
+
+	Planet(x, y, this.r) : pos = new Vector(x, y);
 }
 

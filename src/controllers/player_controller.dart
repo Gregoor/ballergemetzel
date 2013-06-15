@@ -8,16 +8,20 @@ class PlayerController {
 
 	PlayerController(this.p);
 
-	keyDown(key) => keyEvent(key, false);
-	keyUp(key) => keyEvent(key, true);
-
-	keyEvent(int key, bool upOrDown) {
-		key = key || window.event;
+	keyEvent(int keyCode, bool upOrDown) {
 		Action action;
-
-		switch (key.keyCode) {
+		switch (keyCode) {
 			case KeyCode.LEFT:
 				action = Action.LEFT;
+				break;
+			case KeyCode.RIGHT:
+				action = Action.RIGHT;
+				break;
+			case KeyCode.UP:
+				action = Action.UP;
+				break;
+			case KeyCode.DOWN:
+				action = Action.DOWN;
 				break;
 		}
 
