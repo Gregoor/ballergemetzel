@@ -21,7 +21,10 @@ class Vector {
 
 	operator ==(Vector v) => x == v.x && y == v.y;
 
-	operator +(Vector v) => new Vector(x + v.x, y + v.y);
+	operator +(var o) {
+		add(num x, [num y]) => new Vector(this.x + x, this.y + (y == null ? x : y));
+		if (o is Vector) return add(o.x, o.y); else if (o is num) return add(o);
+	}
 
 	operator -(var o) {
 		sub(num x, [num y]) => new Vector(this.x - x, this.y - (y == null ? x : y));

@@ -29,13 +29,19 @@ class Player {
 	static const int HEIGHT = 195;
 	static const int WIDTH = 70;
 
+	static final Vector heightV = new Vector(0, HEIGHT);
+	static final Vector widthV = new Vector(WIDTH, 0);
+
 	static const int MAX_VEL = 2;
+
 	static const num ACCEL = .1;
 
 	Level level;
 
 	Vector pos = new Vector.zero();
+
 	Vector vel = new Vector.zero();
+
 	Vector accel = new Vector.zero();
 
 	Action facing = Action.RIGHT;
@@ -46,50 +52,67 @@ class Player {
 		pos.move(x, y);
 	}
 
-	num s = 0;
 	act(dt) {
 		actions.forEach((action) {
 			switch (action) {
-				case Action.LEFT:
+				case Action
+			.
+			LEFT:
 					this.move(Action.LEFT);
 					break;
-				case Action.RIGHT:
+				case Action
+			.
+			RIGHT:
 					this.move(Action.RIGHT);
 					break;
-				case Action.UP:
+				case Action
+			.
+			UP:
 					this.move(Action.UP);
 					break;
-				case Action.DOWN:
+				case Action
+			.
+			DOWN:
 					this.move(Action.DOWN);
 					break;
-				case Action.JUMP:
+				case Action
+			.
+			JUMP:
 					break;
 			}
 		});
 
-//		if (s += dt > 1000) {
-//			print(level.gravityAt(pos));
-//			s = 0;
-//		}
 		vel = (vel + accel * dt + level.gravityAt(pos) * dt) * .9;
 		vel = vel.length < .9 ? new Vector.zero() : (vel.length > MAX_VEL ? vel.normalize() * MAX_VEL : vel);
-		pos += vel * dt;
-
 		accel *= 0;
+
+		Vector nPos = pos + (vel * dt);
+
+		if (level.planetAt([nPos, nPos + widthV, nPos + heightV, nPos + widthV + heightV])) return;
+
+		pos = nPos;
 	}
 
 	move(Action dir) {
 		switch (dir) {
-			case Action.LEFT:
+			case Action
+		.
+		LEFT:
 				accel.x = max(accel.x - ACCEL, -ACCEL);
 				break;
-			case Action.RIGHT:
+			case Action
+		.
+		RIGHT:
 				accel.x = min(accel.x + ACCEL, ACCEL);
 				break;
-			case Action.UP:
+			case Action
+		.
+		UP:
 				accel.y = max(accel.y - ACCEL, -ACCEL);
 				break;
-		case Action.DOWN:
+			case Action
+		.
+		DOWN:
 				accel.y = min(accel.y + ACCEL, ACCEL);
 				break;
 		}

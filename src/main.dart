@@ -8,7 +8,7 @@ import "models/vector.dart";
 
 Level level = new Level();
 
-Player p1 = new Player(level, 100, 100);
+Player p1 = new Player(level, 1000, 500);
 
 PlayerController playerController = new PlayerController(p1);
 
@@ -85,7 +85,7 @@ render(delta) {
 	for (int x = 0; x < level.gravity.w; x++) {
 		for (int y = 0; y < level.gravity.h; y++) {
 			Vector v = level.gravity[x][y] * 150;
-			num cX = (x / Level.GRAVITY_PREC) * SCALE, cY = (y / Level.GRAVITY_PREC) * SCALE;
+			num cX = (x / Level.GRID_SIZE) * SCALE, cY = (y / Level.GRID_SIZE) * SCALE;
 			ctx.strokeStyle = "lightgrey";
 			ctx.beginPath();
 			ctx.moveTo(cX, cY);
