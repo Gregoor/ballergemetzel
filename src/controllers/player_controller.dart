@@ -17,12 +17,6 @@ class PlayerController {
 			case KeyCode.RIGHT:
 				action = Action.RIGHT;
 				break;
-			case KeyCode.UP:
-				action = Action.UP;
-				break;
-			case KeyCode.DOWN:
-				action = Action.DOWN;
-				break;
 		}
 
 		if (action == null) return;

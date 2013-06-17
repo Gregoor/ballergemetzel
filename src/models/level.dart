@@ -7,7 +7,7 @@ import "dart:math";
 class Level {
 	int width = 5000, height = 5000;
 
-	static const GRID_SIZE = .005;
+	static const GRID_SIZE = .01;
 
 	List planets = [];
 
@@ -28,7 +28,9 @@ class Level {
 		Planet p = planets[0];
 		for (int x = 0; x < gravity.w; x++) {
 			for (int y = 0; y < gravity.h; y++) {
-				gravity[x][y] = (p.pos - new Vector(x / GRID_SIZE, y / GRID_SIZE)).normalize() * .1;
+				Vector v = p.pos - new Vector(x / GRID_SIZE, y / GRID_SIZE);
+				// TODO: Those values are calculated using the religious method (Pascals razor)
+				gravity[x][y] = v * 1 / (10 * (v.length == 0 ? 1 : v.length));
 			}
 		}
 		print("gravitized");

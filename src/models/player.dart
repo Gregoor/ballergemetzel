@@ -11,11 +11,7 @@ class Action {
 
 	static const JUMP = const Action._(2);
 
-	static const UP = const Action._(3);
-
-	static const DOWN = const Action._(4);
-
-	static get values => [LEFT, RIGHT, JUMP, UP, DOWN];
+	static get values => [LEFT, RIGHT, JUMP];
 
 	final int value;
 
@@ -27,10 +23,8 @@ class Action {
 
 class Player {
 	static const int HEIGHT = 195;
-	static const int WIDTH = 70;
 
-	static final Vector heightV = new Vector(0, HEIGHT);
-	static final Vector widthV = new Vector(WIDTH, 0);
+	static const int WIDTH = 70;
 
 	static const int MAX_VEL = 2;
 
@@ -45,6 +39,9 @@ class Player {
 	Vector accel = new Vector.zero();
 
 	Action facing = Action.RIGHT;
+
+	num rotation = 0;
+	Vector rotationV = new Vector.zero();
 
 	Set<Action> actions = new Set();
 
@@ -67,55 +64,49 @@ class Player {
 					break;
 				case Action
 			.
-			UP:
-					this.move(Action.UP);
-					break;
-				case Action
-			.
-			DOWN:
-					this.move(Action.DOWN);
-					break;
-				case Action
-			.
 			JUMP:
 					break;
 			}
 		});
 
-		vel = (vel + accel * dt + level.gravityAt(pos) * dt) * .9;
+		Vector graV = level.gravityAt(pos);
+		num gravRotation = PI - atan2(graV.x, graV.y);
+//		rotation += (gravRotation - rotation).abs() > PI ? .1 : -.1;
+//		rotation = (rotation % (2 * PI)).abs();
+		rotation = gravRotation;
+		rotationV = new Vector(cos(rotation), sin(rotation));
+
+		vel = (vel + accel * dt + graV * dt) * .9;
 		vel = vel.length < .9 ? new Vector.zero() : (vel.length > MAX_VEL ? vel.normalize() * MAX_VEL : vel);
 		accel *= 0;
 
 		Vector nPos = pos + (vel * dt);
 
-		if (level.planetAt([nPos, nPos + widthV, nPos + heightV, nPos + widthV + heightV])) return;
+		Vector wV = rotationV.normalize() * WIDTH;
+		Vector hV = new Vector(wV.y, wV.x) * HEIGHT;
+		if (level.planetAt([nPos, nPos + wV, nPos + hV, nPos + wV + hV])) return;
 
 		pos = nPos;
 	}
 
 	move(Action dir) {
+		Planet p = level.planets[0];
+		num dist = (p.pos - pos).length * 2;
+		num a = atan2(pos.x - p.pos.x, pos.y - p.pos.y);
+
 		switch (dir) {
 			case Action
 		.
 		LEFT:
-				accel.x = max(accel.x - ACCEL, -ACCEL);
+				a -= 1;
 				break;
 			case Action
 		.
 		RIGHT:
-				accel.x = min(accel.x + ACCEL, ACCEL);
-				break;
-			case Action
-		.
-		UP:
-				accel.y = max(accel.y - ACCEL, -ACCEL);
-				break;
-			case Action
-		.
-		DOWN:
-				accel.y = min(accel.y + ACCEL, ACCEL);
+				a += 1;
 				break;
 		}
+		accel = new Vector(p.pos.x + dist * cos(a), p.pos.y + dist * sin(a));
 	}
 
 	toString() => "${pos.x / 100} / ${pos.y / 100}";

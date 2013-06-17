@@ -1,6 +1,7 @@
 library main;
 
 import "dart:html";
+import "dart:math";
 import "controllers/player_controller.dart";
 import "models/level.dart";
 import "models/player.dart";
@@ -67,20 +68,29 @@ act(delta) {
 
 const num SCALE = .2;
 
+bool firstRender = true;
 render(delta) {
 	var ctx = canvas.context2D;
 	clear();
 	ctx.fillStyle = "black";
-	ctx.fillRect(p1.pos.x * SCALE, p1.pos.y * SCALE, Player.WIDTH * SCALE, Player.HEIGHT * SCALE);
+	ctx.save();
+	Vector v = p1.pos * SCALE;
+	ctx.translate(v.x, v.y);
+	ctx.rotate(p1.rotation);
+	ctx.fillRect(0, 0, Player.WIDTH * SCALE, Player.HEIGHT * SCALE);
+	ctx.restore();
 
 	level.planets.forEach((Planet p) {
+		Vector pos = p.pos * SCALE;
 		ctx.fillStyle = "blue";
 		ctx.beginPath();
-		ctx.arc(p.pos.x * SCALE, p.pos.y * SCALE, p.r * SCALE, 0, 6);
+		ctx.arc(pos.x, pos.y, p.r * SCALE * 1.1, 0, 6);
 		ctx.closePath;
 		ctx.fill();
 	});
 
+	if (!firstRender) return;
+	firstRender = false;
 	ctx = debugCanvas.context2D;
 	for (int x = 0; x < level.gravity.w; x++) {
 		for (int y = 0; y < level.gravity.h; y++) {
