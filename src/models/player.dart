@@ -90,11 +90,9 @@ class Player {
 	}
 
 	move(Action dir) {
-//		Planet p = level.planets[0];
-//		num dist = (p.pos - pos).length * 2;
-//		num a = atan2(pos.x - p.pos.x, pos.y - p.pos.y);
-		Vector graV = level.gravityAt(pos);
-		accel = new Vector(graV.y, graV.x).normalize() * 10;
+		//TODO: Get the planet in a nonstatic way
+		Vector p = level.planets[0].pos - pos;
+		accel = new Vector(p.y, p.x).normalize() * 2;
 
 		switch (dir) {
 			case Action
