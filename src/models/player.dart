@@ -90,23 +90,24 @@ class Player {
 	}
 
 	move(Action dir) {
-		Planet p = level.planets[0];
-		num dist = (p.pos - pos).length * 2;
-		num a = atan2(pos.x - p.pos.x, pos.y - p.pos.y);
+//		Planet p = level.planets[0];
+//		num dist = (p.pos - pos).length * 2;
+//		num a = atan2(pos.x - p.pos.x, pos.y - p.pos.y);
+		Vector graV = level.gravityAt(pos);
+		accel = new Vector(graV.y, graV.x).normalize() * 10;
 
 		switch (dir) {
 			case Action
 		.
 		LEFT:
-				a -= 1;
+			accel.x = -accel.x;
 				break;
 			case Action
 		.
 		RIGHT:
-				a += 1;
+			accel.y = -accel.y;
 				break;
 		}
-		accel = new Vector(p.pos.x + dist * cos(a), p.pos.y + dist * sin(a));
 	}
 
 	toString() => "${pos.x / 100} / ${pos.y / 100}";
