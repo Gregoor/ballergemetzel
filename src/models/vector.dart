@@ -4,14 +4,8 @@ import "dart:math";
 
 class Vector {
 
-	static var lengths = new HashMap<int, num>();
-
-	static calcLength(Vector v) {
-		//TODO: MEMOIZE
-		return sqrt(pow(v.x, 2) + pow(v.y, 2));
-	}
-
 	num x, y;
+	num _length;
 
 	Vector(num x, num y) : this.x = double.parse(x.toStringAsFixed(3)), this.y = double.parse(y.toStringAsFixed(3));
 
@@ -20,6 +14,10 @@ class Vector {
 	Vector.zero() : x = 0, y = 0;
 
 	operator ==(Vector v) => x == v.x && y == v.y;
+
+	operator >(Vector v) => length > v.length;
+
+	operator <(Vector v) => length < v.length;
 
 	operator +(var o) {
 		add(num x, [num y]) => new Vector(this.x + x, this.y + (y == null ? x : y));
@@ -41,7 +39,10 @@ class Vector {
 		if (o is Vector) return div(o.x, o.y); else if (o is num) return div(o);
 	}
 
-	get length => Vector.calcLength(this);
+	get length {
+		if (_length == null) _length = sqrt(pow(x, 2) + pow(y, 2));
+		return _length;
+	}
 
 	get neg => new Vector(-x, -y);
 
@@ -56,7 +57,7 @@ class Vector {
 
 	Vector normalize() {
 		var l = length != 0 ? length : 1;
-		int x = this.x / l, y = this.y / l;
+		num x = this.x / l, y = this.y / l;
 		return new Vector(x, y);
 	}
 

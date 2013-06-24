@@ -26,13 +26,15 @@ class Player {
 
 	static const int WIDTH = 70;
 
-	static const int MAX_VEL = 2;
+	static const int MAX_WALK_VEL = 1;
 
-	static const num ACCEL = .1;
+	static const num MAX_FALL_VEL = 3;
 
 	Level level;
 
 	Vector pos = new Vector.zero();
+
+	bool grounded = false;
 
 	Vector vel = new Vector.zero();
 
@@ -41,6 +43,7 @@ class Player {
 	Action facing = Action.RIGHT;
 
 	num rotation = 0;
+
 	Vector rotationV = new Vector.zero();
 
 	Set<Action> actions = new Set();
@@ -49,63 +52,85 @@ class Player {
 		pos.move(x, y);
 	}
 
-	act(dt) {
+	act(num dt) {
+		if (airTime != null) airTime += dt;
+
 		actions.forEach((action) {
 			switch (action) {
 				case Action
 			.
 			LEFT:
-					this.move(Action.LEFT);
+					move(Action.LEFT);
 					break;
 				case Action
 			.
 			RIGHT:
-					this.move(Action.RIGHT);
+					move(Action.RIGHT);
 					break;
 				case Action
 			.
 			JUMP:
+					jump();
 					break;
 			}
 		});
 
 		Vector graV = level.gravityAt(pos);
 		num gravRotation = PI - atan2(graV.x, graV.y);
-//		rotation += (gravRotation - rotation).abs() > PI ? .1 : -.1;
-//		rotation = (rotation % (2 * PI)).abs();
-		rotation = gravRotation;
 		rotationV = new Vector(cos(rotation), sin(rotation));
 
+		// **[VELOCITY CALCULATION]**
 		vel = (vel + accel * dt + graV * dt) * .9;
-		vel = vel.length < .9 ? new Vector.zero() : (vel.length > MAX_VEL ? vel.normalize() * MAX_VEL : vel);
+		vel = vel.length < -.9 ? new Vector.zero() : (vel.length > MAX_FALL_VEL ? vel.normalize() * MAX_FALL_VEL : vel);
 		accel *= 0;
 
-		Vector nPos = pos + (vel * dt);
+		// **[COLLISION DETECTION]**
+		Vector wV = rotationV.normalize() * WIDTH, hV = new Vector(wV.y, wV.x) * HEIGHT, nPos;
+		num i = 1;
+		do {
+			nPos = pos + (vel * dt) * i - wV * .5;
+			i -= .2;
+		} while([nPos, nPos + wV, nPos + hV, nPos + wV + hV].any((v) => level.planetAt(v)) && i > 0);
+		pos = nPos + wV * .5;
 
-		Vector wV = rotationV.normalize() * WIDTH;
-		Vector hV = new Vector(wV.y, wV.x) * HEIGHT;
-		if (level.planetAt([nPos, nPos + wV, nPos + hV, nPos + wV + hV])) return;
+		do {
+			// change rotation to (if necessary) decremented gravity rotation
+		} while(false); //check collision for new rotation
 
-		pos = nPos;
+		grounded = level.planetAt(pos + graV.normalize() * 20);
+		if (grounded) {
+			airTime = null;
+		} else {
+			rotation = gravRotation;
+		}
 	}
 
 	move(Action dir) {
-		//TODO: Get the planet in a nonstatic way
-		Vector p = level.planets[0].pos - pos;
-		accel = new Vector(p.y, p.x).normalize() * 2;
+		Vector p = level.gravityAt(pos);
+		accel = new Vector(p.y, p.x).normalize() * 4;// * (grounded ? .05 : .02);
+
+//		if (vel.length > MAX_WALK_VEL) return;
 
 		switch (dir) {
 			case Action
 		.
 		LEFT:
-			accel.x = -accel.x;
+				accel.x = -accel.x;
 				break;
 			case Action
 		.
 		RIGHT:
-			accel.y = -accel.y;
+				accel.y = -accel.y;
 				break;
 		}
+	}
+
+	num airTime = null;
+	jump() {
+		if ((airTime == null && !grounded) || (airTime != null && airTime > 300)) return;
+		if (airTime == null) airTime = 0;
+		Vector graV = level.gravityAt(pos);
+		vel += graV.neg.normalize() * 1.5;
 	}
 
 	toString() => "${pos.x / 100} / ${pos.y / 100}";

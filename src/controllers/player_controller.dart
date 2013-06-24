@@ -17,6 +17,9 @@ class PlayerController {
 			case KeyCode.RIGHT:
 				action = Action.RIGHT;
 				break;
+			case KeyCode.SPACE:
+				action = Action.JUMP;
+				break;
 		}
 
 		if (action == null) return;

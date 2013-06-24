@@ -16,8 +16,6 @@ PlayerController playerController = new PlayerController(p1);
 CanvasElement canvas;
 CanvasElement debugCanvas;
 
-CanvasRenderingContext2D ctx;
-
 bool exit = false;
 
 main() {
@@ -30,29 +28,31 @@ main() {
 	debugCanvas = canvas.clone(false);
 
 	query("#game-container")..append(debugCanvas)..append(canvas);
-	ctx = canvas.context2D;
 
 	window.onKeyDown.listen((e) {
-		if (e.keyCode == KeyCode.ESC) exit = true;
-		playerController.keyEvent(e.keyCode, false);
 		e.preventDefault();
+		if (e.keyCode == KeyCode.ESC) {
+			exit = true;
+			return;
+		}
+		playerController.keyEvent(e.keyCode, false);
 	});
 	window.onKeyUp.listen((e) {
-		playerController.keyEvent(e.keyCode, true);
 		e.preventDefault();
+		playerController.keyEvent(e.keyCode, true);
 	});
 	mainLoop(0);
 }
 
 
-int prevTime = 0;
+num prevTime = 0;
 
-mainLoop(int time) {
+mainLoop(num time) {
 	if (exit) {
 		window.document.$dom_title = "SPIEL AUS";
 		return;
 	}
-	int delta = time - prevTime;
+	num delta = time - prevTime;
 	prevTime = time;
 
 	act(delta);
@@ -70,11 +70,11 @@ const num SCALE = .2;
 
 bool firstRender = true;
 render(delta) {
-	var ctx = canvas.context2D;
+	CanvasRenderingContext2D ctx = canvas.context2D;
 	clear();
 	ctx.fillStyle = "black";
 	ctx.save();
-	Vector v = p1.pos * SCALE;
+	Vector v = (p1.pos - p1.rotationV * .5) * SCALE;
 	ctx.translate(v.x, v.y);
 	ctx.rotate(p1.rotation);
 	ctx.fillRect(0, 0, Player.WIDTH * SCALE, Player.HEIGHT * SCALE);
@@ -82,7 +82,7 @@ render(delta) {
 
 	level.planets.forEach((Planet p) {
 		Vector pos = p.pos * SCALE;
-		ctx.fillStyle = "blue";
+		ctx.fillStyle = p.color;
 		ctx.beginPath();
 		ctx.arc(pos.x, pos.y, p.r * SCALE * 1.1, 0, 6);
 		ctx.closePath;
@@ -94,19 +94,21 @@ render(delta) {
 	ctx = debugCanvas.context2D;
 	for (int x = 0; x < level.gravity.w; x++) {
 		for (int y = 0; y < level.gravity.h; y++) {
-			Vector v = level.gravity[x][y] * 150;
+			Vector v = level.gravity[x][y];
+			v *= 500;
 			num cX = (x / Level.GRID_SIZE) * SCALE, cY = (y / Level.GRID_SIZE) * SCALE;
+			Vector c = new Vector(cX, cY) + v * .7;
 			ctx.strokeStyle = "lightgrey";
 			ctx.beginPath();
 			ctx.moveTo(cX, cY);
-			ctx.lineTo(cX + v.x * .8, cY + v.y *.8);
+			ctx.lineTo(c.x, c.y);
 			ctx.stroke();
 			ctx.closePath();
 
-			ctx.strokeStyle = "darkgrey";
+			ctx.strokeStyle = "orange";
 			ctx.beginPath();
-			ctx.moveTo(cX + v.x * .8, cY + v.y *.8);
-			ctx.lineTo(cX + v.x * .2, cY + v.y *.2);
+			ctx.moveTo(c.x, c.y);
+			ctx.lineTo(cX + v.x * .3, cY + v.y *.3);
 			ctx.closePath();
 			ctx.stroke();
 		}
@@ -114,5 +116,5 @@ render(delta) {
 }
 
 clear() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);
 }
