@@ -57,32 +57,25 @@ class Player {
 
 		actions.forEach((action) {
 			switch (action) {
-				case Action
-			.
-			LEFT:
+				case Action.LEFT:
 					move(Action.LEFT);
 					break;
-				case Action
-			.
-			RIGHT:
+				case Action.RIGHT:
 					move(Action.RIGHT);
 					break;
-				case Action
-			.
-			JUMP:
+				case Action.JUMP:
 					jump();
 					break;
 			}
 		});
-
 		Vector graV = level.gravityAt(pos);
 		num gravRotation = PI - atan2(graV.x, graV.y);
 		rotationV = new Vector(cos(rotation), sin(rotation));
 
 		// **[VELOCITY CALCULATION]**
-		vel = (vel + accel * dt + graV * dt) * .9;
+		vel = vel * .9 + accel * dt + graV * dt;
 		vel = vel.length < -.9 ? new Vector.zero() : (vel.length > MAX_FALL_VEL ? vel.normalize() * MAX_FALL_VEL : vel);
-		accel *= 0;
+		accel = new Vector.zero();
 
 		// **[COLLISION DETECTION]**
 		Vector wV = rotationV.normalize() * WIDTH, hV = new Vector(wV.y, wV.x) * HEIGHT, nPos;
@@ -112,14 +105,10 @@ class Player {
 //		if (vel.length > MAX_WALK_VEL) return;
 
 		switch (dir) {
-			case Action
-		.
-		LEFT:
+			case Action.LEFT:
 				accel.x = -accel.x;
 				break;
-			case Action
-		.
-		RIGHT:
+			case Action.RIGHT:
 				accel.y = -accel.y;
 				break;
 		}
@@ -127,10 +116,10 @@ class Player {
 
 	num airTime = null;
 	jump() {
-		if ((airTime == null && !grounded) || (airTime != null && airTime > 300)) return;
+//		if ((airTime == null && !grounded) || (airTime != null && airTime > 300)) return;
 		if (airTime == null) airTime = 0;
 		Vector graV = level.gravityAt(pos);
-		vel += graV.neg.normalize() * 1.5;
+		vel += graV.neg.normalize() * 50;
 	}
 
 	toString() => "${pos.x / 100} / ${pos.y / 100}";

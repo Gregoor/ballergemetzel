@@ -9,7 +9,7 @@ import "models/vector.dart";
 
 Level level = new Level();
 
-Player p1 = new Player(level, 1000, 500);
+Player p1 = new Player(level, 0, 0);
 
 PlayerController playerController = new PlayerController(p1);
 
@@ -31,10 +31,15 @@ main() {
 
 	window.onKeyDown.listen((e) {
 		e.preventDefault();
-		if (e.keyCode == KeyCode.ESC) {
-			exit = true;
-			return;
+		switch (e.keyCode) {
+			case KeyCode.ESC:
+				exit = true;
+				return;
+			case KeyCode.D:
+				renderGravityMap();
+				return;
 		}
+		//TODO: Keymap
 		playerController.keyEvent(e.keyCode, false);
 	});
 	window.onKeyUp.listen((e) {
@@ -66,39 +71,39 @@ act(delta) {
 	p1.act(delta);
 }
 
-const num SCALE = .2;
+const num SCALE = .15;
 
 bool firstRender = true;
 render(delta) {
 	CanvasRenderingContext2D ctx = canvas.context2D;
-	clear();
+	clear(canvas);
 	ctx.fillStyle = "black";
 	ctx.save();
-	Vector v = (p1.pos - p1.rotationV * .5) * SCALE;
+//	Vector v = (p1.pos - p1.rotationV * .5) * SCALE;
+	Vector v = new Vector(canvas.width / 2, canvas.height / 2);
 	ctx.translate(v.x, v.y);
 	ctx.rotate(p1.rotation);
 	ctx.fillRect(0, 0, Player.WIDTH * SCALE, Player.HEIGHT * SCALE);
 	ctx.restore();
 
-	level.planets.forEach((Planet p) {
-		Vector pos = p.pos * SCALE;
-		ctx.fillStyle = p.color;
+	level.planets.forEach((Planet planet) {
+		Vector pos = v + (planet.pos - p1.pos) * SCALE;
+		ctx.fillStyle = planet.color;
 		ctx.beginPath();
-		ctx.arc(pos.x, pos.y, p.r * SCALE * 1.1, 0, 6);
+		ctx.arc(pos.x, pos.y, planet.r * SCALE * 1.1, 0, 6);
 		ctx.closePath;
 		ctx.fill();
 	});
+}
 
-	if (!firstRender) return;
-	firstRender = false;
-	ctx = debugCanvas.context2D;
-	for (int x = 0; x < level.gravity.w; x++) {
-		for (int y = 0; y < level.gravity.h; y++) {
+renderGravityMap() {
+	clear(debugCanvas);
+	CanvasRenderingContext2D ctx = debugCanvas.context2D;
 			Vector v = level.gravity[x][y];
 			v *= 500;
 			num cX = (x / Level.GRID_SIZE) * SCALE, cY = (y / Level.GRID_SIZE) * SCALE;
 			Vector c = new Vector(cX, cY) + v * .7;
-			ctx.strokeStyle = "lightgrey";
+			ctx.strokeStyle = "lightblue";
 			ctx.beginPath();
 			ctx.moveTo(cX, cY);
 			ctx.lineTo(c.x, c.y);
@@ -111,10 +116,8 @@ render(delta) {
 			ctx.lineTo(cX + v.x * .3, cY + v.y *.3);
 			ctx.closePath();
 			ctx.stroke();
-		}
-	}
 }
 
-clear() {
+clear(CanvasElement canvas) {
 	canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);
 }

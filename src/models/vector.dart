@@ -5,6 +5,7 @@ import "dart:math";
 class Vector {
 
 	num x, y;
+
 	num _length;
 
 	Vector(num x, num y) : this.x = double.parse(x.toStringAsFixed(3)), this.y = double.parse(y.toStringAsFixed(3));
