@@ -14,18 +14,22 @@ Player p1 = new Player(level, 0, 0);
 PlayerController playerController = new PlayerController(p1);
 
 CanvasElement canvas;
+CanvasElement bgCanvas;
 CanvasElement debugCanvas;
+
+ImageElement tileImg;
 
 bool exit = false;
 
 main() {
 	canvas = new CanvasElement();
 	canvas
-		..width = window.innerWidth - 30
-		..height = window.innerHeight - 30
-		..style.border = "1px solid black"
-		..style.position = "absolute";
-	debugCanvas = canvas.clone(false);
+		..width = window.innerWidth
+		..height = window.innerHeight
+		..style.position = "absolute"
+		..style.left = "0px"
+		..style.top = "0px";
+	bgCanvas = debugCanvas = canvas.clone(false);
 
 	query("#game-container")..append(debugCanvas)..append(canvas);
 
@@ -46,7 +50,11 @@ main() {
 		e.preventDefault();
 		playerController.keyEvent(e.keyCode, true);
 	});
-	mainLoop(0);
+
+	tileImg = new ImageElement(src: "img/tile.jpg");
+	tileImg.onLoad.listen((Event e) {
+		mainLoop(0);
+	});
 }
 
 
@@ -77,25 +85,38 @@ bool firstRender = true;
 render(delta) {
 	CanvasRenderingContext2D ctx = canvas.context2D;
 	clear(canvas);
-	ctx.fillStyle = "black";
-	ctx.save();
-//	Vector v = (p1.pos - p1.rotationV * .5) * SCALE;
-	Vector v = new Vector(canvas.width / 2, canvas.height / 2);
-	ctx.translate(v.x, v.y);
-	ctx.rotate(p1.rotation);
-	ctx.fillRect(0, 0, Player.WIDTH * SCALE, Player.HEIGHT * SCALE);
-	ctx.restore();
+	Vector center = new Vector(canvas.width, canvas.height).scale(.5);
+	ctx..fillStyle = "darkgrey"
+		..strokeStyle = "black"
+		..lineWidth = 2
+		..save()
+		..translate(center.x, center.y)
+		..rotate(p1.rotation)
+		..fillRect(0, 0, Player.WIDTH * SCALE, Player.HEIGHT * SCALE)
+		..strokeRect(0, 0, Player.WIDTH * SCALE, Player.HEIGHT * SCALE)
+		..restore();
 
+	Vector offset = p1.pos - new Vector(-p1.rotationV.y, p1.rotationV.x).scale(.5);
 	level.planets.forEach((Planet planet) {
-		Vector pos = v + (planet.pos - p1.pos) * SCALE;
-		ctx.fillStyle = planet.color;
-		ctx.beginPath();
-		ctx.arc(pos.x, pos.y, planet.r * SCALE * 1.1, 0, 6);
-		ctx.closePath;
-		ctx.fill();
+		Vector pos = center + (planet.pos - offset).scale(SCALE);
+		ctx..fillStyle = planet.color
+			..beginPath()
+			..arc(pos.x, pos.y, planet.r * SCALE * 1.1, 0, 6)
+			..closePath
+			..fill();
 	});
+
+	for (int x = -((p1.pos.x * SCALE / 1.5).floor() % tileImg.width); x < bgCanvas.width; x += tileImg.width) {
+		for (int y = -((p1.pos.y * SCALE / 1.5).floor() % tileImg.height); y < bgCanvas.height; y += tileImg.height) {
+			bgCanvas.context2D.drawImage(tileImg, x, y);
+		}
+	}
 }
 
+
+/**
+* Broken as fuck
+*/
 renderGravityMap() {
 	clear(debugCanvas);
 	CanvasRenderingContext2D ctx = debugCanvas.context2D;

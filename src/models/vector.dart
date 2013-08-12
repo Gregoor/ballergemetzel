@@ -20,25 +20,13 @@ class Vector {
 
 	operator <(Vector v) => length < v.length;
 
-	operator +(var o) {
-		add(num x, [num y]) => new Vector(this.x + x, this.y + (y == null ? x : y));
-		if (o is Vector) return add(o.x, o.y); else if (o is num) return add(o);
-	}
+	operator +(Vector v) => new Vector(x + v.x, y + v.y);
 
-	operator -(var o) {
-		sub(num x, [num y]) => new Vector(this.x - x, this.y - (y == null ? x : y));
-		if (o is Vector) return sub(o.x, o.y); else if (o is num) return sub(o);
-	}
+	operator -(Vector v) => new Vector(x - v.x, y - v.y);
 
-	operator *(var o) {
-		mult(num x, [num y]) => new Vector(this.x * x, this.y * (y == null ? x : y));
-		if (o is Vector) return mult(o.x, o.y); else if (o is num) return mult(o);
-	}
+	operator *(Vector v) => new Vector(x * v.x, y * v.y);
 
-	operator /(var o) {
-		div(num x, [num y]) => new Vector(this.x / x, this.y / (y == null ? x : y));
-		if (o is Vector) return div(o.x, o.y); else if (o is num) return div(o);
-	}
+	operator /(Vector v) => new Vector(x / v.x, y / v.y);
 
 	get length {
 		if (_length == null) _length = sqrt(pow(x, 2) + pow(y, 2));
@@ -51,17 +39,16 @@ class Vector {
 
 	String toString() => "$x / $y";
 
-	move(num x, num y) {
-		this.x = x;
-		this.y = y;
-	}
-
 	Vector normalize() {
 		var l = length != 0 ? length : 1;
 		num x = this.x / l, y = this.y / l;
 		return new Vector(x, y);
 	}
 
-	round() => new Vector(x.round(), y. round());
+	Vector round() => new Vector(x.round(), y. round());
+
+	Vector scale(num n) => new Vector(x * n, y * n);
+
+	Vector plus(num n) => new Vector(x + n, y + n);
 
 }

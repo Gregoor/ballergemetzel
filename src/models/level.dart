@@ -47,10 +47,9 @@ class Level {
 		Vector grav;
 		planets.forEach((Planet planet) {
 			Vector dist = planet.surfaceTo(pos);
+			Vector force = dist.normalize().scale(.001 * planet.mass / pow(dist.length, 2));
 
-			dist = dist.normalize() * .001 * (planet.mass / pow(dist.length, 2));
-
-			grav = grav == null ? dist : grav + (dist - grav) * .5;
+			grav = grav == null ? force : grav + force;
 		});
 		return grav;
 	}

@@ -24,7 +24,7 @@ class Action {
 class Player {
 	static const int HEIGHT = 195;
 
-	static const int WIDTH = 70;
+	static const int WIDTH = 60;
 
 	static const int MAX_WALK_VEL = 1;
 
@@ -32,7 +32,7 @@ class Player {
 
 	Level level;
 
-	Vector pos = new Vector.zero();
+	Vector pos;
 
 	bool grounded = false;
 
@@ -49,7 +49,7 @@ class Player {
 	Set<Action> actions = new Set();
 
 	Player(this.level, num x, num y) {
-		pos.move(x, y);
+		pos = new Vector(x, y);
 	}
 
 	act(num dt) {
@@ -70,27 +70,27 @@ class Player {
 		});
 		Vector graV = level.gravityAt(pos);
 		num gravRotation = PI - atan2(graV.x, graV.y);
-		rotationV = new Vector(cos(rotation), sin(rotation));
+		rotationV = new Vector(sin(rotation), cos(rotation));
 
 		// **[VELOCITY CALCULATION]**
-		vel = vel * .9 + accel * dt + graV * dt;
-		vel = vel.length < -.9 ? new Vector.zero() : (vel.length > MAX_FALL_VEL ? vel.normalize() * MAX_FALL_VEL : vel);
+		vel = vel + vel.neg.scale(.01 * dt) + accel.scale(dt) + graV.scale(dt);
+		vel = vel.length < .9 ? new Vector.zero() : (vel.length > MAX_FALL_VEL ? vel.normalize().scale(MAX_FALL_VEL) : vel);
 		accel = new Vector.zero();
 
 		// **[COLLISION DETECTION]**
-		Vector wV = rotationV.normalize() * WIDTH, hV = new Vector(wV.y, wV.x) * HEIGHT, nPos;
+		Vector widthV = new Vector(-rotationV.y, rotationV.x).scale(WIDTH), heightV = rotationV.neg.scale(HEIGHT), bottomLeft;
 		num i = 1;
 		do {
-			nPos = pos + (vel * dt) * i - wV * .5;
-			i -= .2;
-		} while([nPos, nPos + wV, nPos + hV, nPos + wV + hV].any((v) => level.planetAt(v)) && i > 0);
-		pos = nPos + wV * .5;
+			bottomLeft = pos - widthV.scale(.5) + vel.scale(dt * i);
+			i -= .1;
+		} while([bottomLeft, bottomLeft + widthV, bottomLeft + heightV, bottomLeft + widthV + heightV].any((v) => level.planetAt(v)) && i > 0);
+		pos = bottomLeft + widthV.scale(.5);
 
 		do {
 			// change rotation to (if necessary) decremented gravity rotation
 		} while(false); //check collision for new rotation
 
-		grounded = level.planetAt(pos + graV.normalize() * 20);
+		grounded = level.planetAt(pos + graV.normalize().scale(20));
 		if (grounded) {
 			airTime = null;
 		} else {
@@ -100,7 +100,7 @@ class Player {
 
 	move(Action dir) {
 		Vector p = level.gravityAt(pos);
-		accel = new Vector(p.y, p.x).normalize() * 4;// * (grounded ? .05 : .02);
+		accel = new Vector(p.y, p.x).normalize().scale(4);// * (grounded ? .05 : .02);
 
 //		if (vel.length > MAX_WALK_VEL) return;
 
@@ -119,7 +119,7 @@ class Player {
 //		if ((airTime == null && !grounded) || (airTime != null && airTime > 300)) return;
 		if (airTime == null) airTime = 0;
 		Vector graV = level.gravityAt(pos);
-		vel += graV.neg.normalize() * 50;
+		vel += graV.neg.normalize().scale(50);
 	}
 
 	toString() => "${pos.x / 100} / ${pos.y / 100}";
