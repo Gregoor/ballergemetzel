@@ -11,7 +11,9 @@ class Level {
 
 	int width = 10000, height = 5000;
 
-	Set planets = [];
+	Set<Planet> planets = [];
+
+	Set<Projectile> projectiles = [];
 
 	Grid gravity;
 
@@ -39,15 +41,20 @@ class Level {
 		} while (random.nextDouble() < .8);
 	}
 
-	act(delta) {
-
+	act(num dt) {
+		Set<Projectile> deadProjectiles = [];
+		projectiles.forEach((Projectile p) {
+			p.act(dt, gravityAt(p.pos, p.mass));
+			if (p.hit || p.lifetime > 3000) deadProjectiles.add(p);
+		});
+		projectiles.removeWhere((Projectile p) => deadProjectiles.contains(p));
 	}
 
-	Vector gravityAt(Vector pos) {
+	Vector gravityAt(Vector pos, num mass) {
 		Vector grav;
 		planets.forEach((Planet planet) {
 			Vector dist = planet.surfaceTo(pos);
-			Vector force = dist.normalize().scale(.001 * planet.mass / pow(dist.length, 2));
+			Vector force = dist.normalize().scale(.001 * mass * planet.mass / pow(dist.length, 2));
 
 			grav = grav == null ? force : grav + force;
 		});
@@ -55,7 +62,7 @@ class Level {
 	}
 
 	Planet planetAt(Vector v) {
-		return planets.any((Planet p) => (v - p.pos).length <= p.r ? true : false);
+		return planets.any((Planet p) => (v - p.pos).length <= p.r);
 	}
 }
 

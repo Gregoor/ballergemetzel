@@ -3,6 +3,8 @@ library player;
 import "vector.dart";
 import "dart:math";
 import "level.dart";
+import "projectile.dart";
+import "physactor.dart";
 
 class Action {
 	static const LEFT = const Action._(0);
@@ -11,7 +13,11 @@ class Action {
 
 	static const JUMP = const Action._(2);
 
-	static get values => [LEFT, RIGHT, JUMP];
+	static const SHOOT_RIGHT = const Action._(3);
+
+	static const SHOOT_LEFT = const Action._(4);
+
+	static get values => [LEFT, RIGHT, JUMP, SHOOT_RIGHT, SHOOT_LEFT];
 
 	final int value;
 
@@ -21,86 +27,75 @@ class Action {
 }
 
 
-class Player {
+class Player extends PhysActor {
 	static const int HEIGHT = 195;
 
 	static const int WIDTH = 60;
 
-	static const int MAX_WALK_VEL = 1;
-
-	static const num MAX_FALL_VEL = 3;
-
-	Level level;
-
-	Vector pos;
+	const int MAX_FALL_VEL = 4;
+	const int MAX_WALK_VEL = 1;
 
 	bool grounded = false;
-
-	Vector vel = new Vector.zero();
-
-	Vector accel = new Vector.zero();
 
 	Action facing = Action.RIGHT;
 
 	num rotation = 0;
 
-	Vector rotationV = new Vector.zero();
+	num mass = 90;
 
 	Set<Action> actions = new Set();
 
-	Player(this.level, num x, num y) {
+	Player(Level level, num x, num y) {
+		this.level = level;
 		pos = new Vector(x, y);
 	}
 
-	act(num dt) {
+	act(num dt, Vector graV) {
+		super.act(dt, graV);
 		if (airTime != null) airTime += dt;
 
 		actions.forEach((action) {
 			switch (action) {
 				case Action.LEFT:
-					move(Action.LEFT);
+					move(dt, Action.LEFT);
 					break;
 				case Action.RIGHT:
-					move(Action.RIGHT);
+					move(dt, Action.RIGHT);
 					break;
 				case Action.JUMP:
-					jump();
+					jump(graV);
+					break;
+				case Action.SHOOT_RIGHT:
+					shoot(dt, Action.SHOOT_RIGHT);
+					break;
+				case Action.SHOOT_LEFT:
+					shoot(dt, Action.SHOOT_LEFT);
 					break;
 			}
 		});
-		Vector graV = level.gravityAt(pos);
-		num gravRotation = PI - atan2(graV.x, graV.y);
-		rotationV = new Vector(sin(rotation), cos(rotation));
-
-		// **[VELOCITY CALCULATION]**
-		vel = vel + vel.neg.scale(.01 * dt) + accel.scale(dt) + graV.scale(dt);
-		vel = vel.length < .9 ? new Vector.zero() : (vel.length > MAX_FALL_VEL ? vel.normalize().scale(MAX_FALL_VEL) : vel);
-		accel = new Vector.zero();
-
-		// **[COLLISION DETECTION]**
-		Vector widthV = new Vector(-rotationV.y, rotationV.x).scale(WIDTH), heightV = rotationV.neg.scale(HEIGHT), bottomLeft;
-		num i = 1;
-		do {
-			bottomLeft = pos - widthV.scale(.5) + vel.scale(dt * i);
-			i -= .1;
-		} while([bottomLeft, bottomLeft + widthV, bottomLeft + heightV, bottomLeft + widthV + heightV].any((v) => level.planetAt(v)) && i > 0);
-		pos = bottomLeft + widthV.scale(.5);
 
 		do {
 			// change rotation to (if necessary) decremented gravity rotation
 		} while(false); //check collision for new rotation
 
-		grounded = level.planetAt(pos + graV.normalize().scale(20));
+		grounded = level.planetAt(pos + rotationV.scale(20));
 		if (grounded) {
 			airTime = null;
 		} else {
-			rotation = gravRotation;
+			rotation = PI - atan2(rotationV.x, rotationV.y);
 		}
 	}
 
-	move(Action dir) {
-		Vector p = level.gravityAt(pos);
-		accel = new Vector(p.y, p.x).normalize().scale(4);// * (grounded ? .05 : .02);
+	collide() {
+
+	}
+
+	move(num dt, Action dir) {
+//		num rad = -50 * (PI / 180);
+//		num sn = sin(rad), cs = cos(rad);
+//		Vector direction = new Vector(rotationV.y * cs - rotationV.x * sn, rotationV.y * sn + rotationV.x * cs);
+		Vector direction = new Vector(rotationV.y, rotationV.x);
+		accel = direction.normalize().scale(15 * dt);// * (grounded ? .05 : .02);
 
 //		if (vel.length > MAX_WALK_VEL) return;
 
@@ -115,11 +110,20 @@ class Player {
 	}
 
 	num airTime = null;
-	jump() {
+	jump(graV) {
 //		if ((airTime == null && !grounded) || (airTime != null && airTime > 300)) return;
 		if (airTime == null) airTime = 0;
-		Vector graV = level.gravityAt(pos);
-		vel += graV.neg.normalize().scale(50);
+		vel += graV.neg.scale(150);
+	}
+
+	shoot(num dt, Action direction) { // Later Vector target
+		Vector widthV = new Vector(-rotationV.y, rotationV.x).scale(WIDTH), heightV = rotationV.neg.scale(HEIGHT);
+
+		Vector start = pos - widthV.scale(.5) + heightV.scale(.8), accel = widthV.normalize().scale(5 * dt);
+		if (direction == Action.SHOOT_RIGHT) {
+			accel = accel.neg;
+		}
+		level.projectiles.add(new Projectile(level, start, accel));
 	}
 
 	toString() => "${pos.x / 100} / ${pos.y / 100}";

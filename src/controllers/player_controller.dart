@@ -20,6 +20,12 @@ class PlayerController {
 			case KeyCode.SPACE:
 				action = Action.JUMP;
 				break;
+			case KeyCode.D:
+				action = Action.SHOOT_RIGHT;
+				break;
+			case KeyCode.A:
+				action = Action.SHOOT_LEFT;
+				break;
 		}
 
 		if (action == null) return;

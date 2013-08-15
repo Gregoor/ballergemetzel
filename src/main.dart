@@ -13,6 +13,7 @@ Player p1 = new Player(level, 0, 0);
 
 PlayerController playerController = new PlayerController(p1);
 
+List<CanvasElement> canvases;
 CanvasElement canvas;
 CanvasElement bgCanvas;
 CanvasElement debugCanvas;
@@ -22,34 +23,39 @@ ImageElement tileImg;
 bool exit = false;
 
 main() {
+	resizeCanvases() {
+		canvases.forEach((CanvasElement canvas) => canvas..width = window.innerWidth ..height= window.innerHeight);
+	}
 	canvas = new CanvasElement();
 	canvas
-		..width = window.innerWidth
-		..height = window.innerHeight
 		..style.position = "absolute"
 		..style.left = "0px"
 		..style.top = "0px";
 	bgCanvas = debugCanvas = canvas.clone(false);
+	canvases = [canvas, bgCanvas, debugCanvas];
+	resizeCanvases();
 
 	query("#game-container")..append(debugCanvas)..append(canvas);
 
-	window.onKeyDown.listen((e) {
-		e.preventDefault();
-		switch (e.keyCode) {
-			case KeyCode.ESC:
-				exit = true;
-				return;
-			case KeyCode.D:
-				renderGravityMap();
-				return;
-		}
-		//TODO: Keymap
-		playerController.keyEvent(e.keyCode, false);
-	});
-	window.onKeyUp.listen((e) {
-		e.preventDefault();
-		playerController.keyEvent(e.keyCode, true);
-	});
+	window
+		..onResize.listen((e) => resizeCanvases())
+		..onKeyDown.listen((e) {
+			e.preventDefault();
+			switch (e.keyCode) {
+				case KeyCode.ESC:
+					exit = true;
+					return;
+//				case KeyCode.D:
+//					renderGravityMap();
+//					return;
+			}
+			//TODO: Keymap
+			playerController.keyEvent(e.keyCode, false);
+		})
+		..onKeyUp.listen((e) {
+			e.preventDefault();
+			playerController.keyEvent(e.keyCode, true);
+		});
 
 	tileImg = new ImageElement(src: "img/tile.jpg");
 	tileImg.onLoad.listen((Event e) {
@@ -76,7 +82,7 @@ mainLoop(num time) {
 
 act(delta) {
 	level.act(delta);
-	p1.act(delta);
+	p1.act(delta, level.gravityAt(p1.pos, p1.mass));
 }
 
 const num SCALE = .15;
@@ -104,6 +110,15 @@ render(delta) {
 			..arc(pos.x, pos.y, planet.r * SCALE * 1.1, 0, 6)
 			..closePath
 			..fill();
+	});
+
+	level.projectiles.forEach((Projectile projectile) {
+		Vector pos = center + (projectile.pos - offset).scale(SCALE);
+		ctx..fillStyle = "red"
+		..beginPath()
+		..arc(pos.x, pos.y, 3, 0, 6)
+		..closePath
+		..fill();
 	});
 
 	for (int x = -((p1.pos.x * SCALE / 1.5).floor() % tileImg.width); x < bgCanvas.width; x += tileImg.width) {
