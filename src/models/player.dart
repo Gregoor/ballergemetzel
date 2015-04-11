@@ -32,8 +32,8 @@ class Player extends PhysActor {
 
 	static const int WIDTH = 60;
 
-	const int MAX_FALL_VEL = 4;
-	const int MAX_WALK_VEL = 1;
+	static const int MAX_FALL_VEL = 4;
+	static const int MAX_WALK_VEL = 1;
 
 	bool grounded = false;
 

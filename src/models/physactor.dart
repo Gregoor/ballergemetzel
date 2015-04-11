@@ -3,7 +3,7 @@ import "level.dart";
 
 abstract class PhysActor {
 
-	const int MAX_FALL_VEL = 10;
+	static const int MAX_FALL_VEL = 10;
 
 	Vector pos, vel = new Vector.zero(), accel = new Vector.zero(), rotationV = new Vector.zero();
 
